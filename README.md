@@ -1,3 +1,3 @@
 # Templates
 
-Repo for Kaholo templates to help you get started quickly.
+Repo for Kaholo templates to help you get started quickly. This repo is always updated with the latest template versions.
