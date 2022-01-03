@@ -1,3 +1,3 @@
 # Templates
 
-Repo for Kaholo templates
+Repo for Kaholo templates to help you get started quickly.
