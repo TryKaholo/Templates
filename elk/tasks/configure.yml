@@ -1,0 +1,145 @@
+---
+- name: Copy service credentials
+  ansible.builtin.copy:
+    src: /home/inder/Downloads/on-demand-elk-5cf1db7974ac.json
+    dest: /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+
+- name: Activate the auth
+  shell: gcloud auth activate-service-account --key-file=/usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+
+- name: Add credentials to ElasticSearch KeyStore
+  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json"
+
+- name: Remove GCS backup plugin directory
+  file:
+    path: /usr/share/elasticsearch/plugins/repository-gcs
+    state: absent
+
+- name: Install GCS backup plugin
+  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-gcs"
+
+- name: Restart elasticsearch service
+  ansible.builtin.service:
+    name: elasticsearch
+    state: restarted
+
+- name: Copy the import script
+  template:
+    src: import.sh.j2
+    dest: /usr/local/bin/import
+    mode: 0777
+
+- name: Copy snapshot script
+  template:
+    src: es-snapshot.sh.j2
+    dest: /usr/local/bin/es-snapshot
+    mode: 777
+
+- name: Create a backup repository
+  shell: "sleep 20 ; curl -X PUT -H \"Content-Type: application/json\" -d '{ \"type\": \"gcs\", \"settings\": {\"bucket\": \"{{instance_name}}-es-on-demand\", \"base_path\": \"es_backup\" } }' localhost:9200/_snapshot/backup"
+
+- name: Check if any latest backup is available
+  shell: curl -s  'localhost:9200/_cat/snapshots/backup?v&s=end_epoch' | tail -1 | cut -d ' ' -f1
+  register: latest_bkp
+
+- name: Fetch kibana index
+  shell: curl -s 'localhost:9200/_cat/indices' | grep '.kibana_' | grep -v task | cut -d ' ' -f 3
+  register: kibana_index
+
+- name: Delete kibana index
+  shell: "curl -X DELETE 'localhost:9200/{{kibana_index.stdout}}'"
+  when:
+    - latest_bkp.stdout != ""
+    - latest_bkp.stdout != "id"
+
+- name: Restore latest backup
+  shell: "curl -X POST 'localhost:9200/_snapshot/backup/{{latest_bkp.stdout}}/_restore'"
+  when:
+    - latest_bkp.stdout != ""
+    - latest_bkp.stdout != "id"
+
+- name: Enable ES auth
+  ansible.builtin.lineinfile:
+    path: /etc/elasticsearch/elasticsearch.yml
+    line: "xpack.security.enabled: true"
+    state: present
+
+- name: Restart elasticsearch service
+  ansible.builtin.service:
+    name: elasticsearch
+    state: restarted
+
+- name: Set credentials for ES
+  ansible.builtin.expect:
+    command: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
+    responses:
+      'Please confirm that you would like to continue \[y/N\]': "y"
+      'Enter password for \[elastic\]': "{{ elastic_password }}"
+      'Reenter password for \[elastic\]': "{{ elastic_password }}"
+      'Enter password for \[apm_system\]': "{{ apm_password }}"
+      'Reenter password for \[apm_system\]': "{{ apm_password }}"
+      'Enter password for \[kibana_system\]': "{{ kibana_password }}"
+      'Reenter password for \[kibana_system\]': "{{ kibana_password }}"
+      'Enter password for \[logstash_system\]': "{{ logstash_passord }}"
+      'Reenter password for \[logstash_system\]': "{{ logstash_passord }}"
+      'Enter password for \[beats_system\]': "{{ beats_password }}"
+      'Reenter password for \[beats_system\]': "{{ beats_password }}"
+      'Enter password for \[remote_monitoring_user\]': "{{ remote_monitoring_password }}"
+      'Reenter password for \[remote_monitoring_user\]': "{{ remote_monitoring_password }}"
+
+- name: Update kibana config
+  ansible.builtin.lineinfile:
+    path: /etc/kibana/kibana.yml
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - 'elasticsearch.username: "kibana_system"'
+    - 'elasticsearch.password: "{{ kibana_password }}"'
+
+- name: Restart kibana service
+  ansible.builtin.service:
+    name: kibana
+    state: restarted
+
+- name: Setting up cron to take backup
+  cron:
+    name: "screenshot backup"
+    minute: "*/15"
+    job: "sh /usr/local/bin/es-snapshot"
+
+- name: Copy logstash config
+  template:
+    src: logstash.yml.j2
+    dest: /etc/logstash/conf.d/logstash.yml
+  tags: [ logstash-config ]
+
+- name: Update logstash service
+  shell: 'sed -i "s~ExecStart=.*~ExecStart=/usr/share/logstash/bin/logstash --path.config /etc/logstash/conf.d/logstash.yml~g" /etc/systemd/system/logstash.service'
+  tags: [ logstash-svc ]
+
+- name: Reload logstash daemon
+  shell: systemctl daemon-reload
+  tags: [ daemon-reload ]
+  
+- name: Restart logstash service
+  service:
+    name: logstash
+    state: restarted
+  tags: [ restart-logstash ]
+
+- name: Pause the play for sometime
+  pause:
+    seconds: 30
+  tags: [ pause ]
+  
+- name: Copy dump script
+  copy:
+    src: dump.py
+    dest: /usr/local/bin/dump.py
+  tags: [ copy-dump ]
+
+- name: Import manual data
+  shell: /usr/local/bin/import
+
+- debug:
+    msg: "Login into Kibana UI using 'user: elastic' and 'password: {{ elastic_password }}"

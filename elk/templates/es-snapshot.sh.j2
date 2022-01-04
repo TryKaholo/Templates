@@ -1,0 +1,9 @@
+#!/bin/bash
+
+##Take ES snapshot
+curl -X PUT "http://elastic:{{elastic_password}}@localhost:9200/_snapshot/backup/snapshot_$(date +%s)?wait_for_completion=true" -H 'Content-Type: application/json' -d'
+   {
+   "indices": "*,-.geoip_databases,-.kibana_task_manager*,-.kibana-*,-.apm-*,-.ds-*,-.tasks,-.async-search,-.security*,-.kibana_security_session*",
+   "ignore_unavailable": true,
+   "include_global_state": false
+   }'

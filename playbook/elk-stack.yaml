@@ -1,0 +1,9 @@
+---
+- name: Setup ELK
+  ##elk is the group in Ansible inventory containing the IP of the VM
+  hosts: all
+  gather_facts: no
+  become: true
+  roles: 
+    - {role: ../elk}
+

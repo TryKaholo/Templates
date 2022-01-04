@@ -1,0 +1,94 @@
+---
+- name: Install some dependencies
+  package:
+    use: yum
+    name:
+      - nginx
+      - wget
+      - java-11-openjdk
+      - java-11-openjdk-devel
+      - python3
+      - python3-devel
+      - gcc
+      - python-yaml
+      - python-pip
+    state: present
+
+- name: Upgrade pip
+  shell: pip3 install -U pip
+
+- name: Install pexpect
+  shell: "pip install pexpect --user"
+
+- name: Install some dependencies
+  shell: "pip3 install {{item}} --user"
+  with_items:
+    - setuptools
+    - csvkit
+    - pathlib
+    - gsutil
+    - pandas
+
+- name: Copy java8 script
+  copy:
+    src: java11.sh
+    dest: /etc/profile.d/java11.sh
+    mode: 777
+
+- name: Import Elasticsearch Key
+  shell: rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: add ES repo
+  copy:
+    src: elasticsearch.repo
+    dest: /etc/yum.repos.d/elasticsearch.repo
+
+- name: add Kibana repo
+  copy:
+    src: kibana.repo
+    dest: /etc/yum.repos.d/kibana.repo
+
+- name: add logstash repo
+  copy:
+    src: logstash.repo
+    dest: /etc/yum.repos.d/logstash.repo
+
+- name: Yum update
+  shell: yum update -y
+
+- name: Install elasticsearch, logstash and kibana
+  package:
+    use: yum
+    name:
+      - elasticsearch
+      - kibana
+      - logstash
+    state: present
+
+- name: Set JVM options for ES
+  ansible.builtin.lineinfile:
+    path: /etc/elasticsearch/jvm.options
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - '-Xms4g'
+    - '-Xmx4g'
+
+- name: copy nginx conf
+  copy:
+    src: kibana.conf
+    dest: /etc/nginx/conf.d/kibana.conf
+
+- name: start all services 
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - elasticsearch
+    - kibana
+    - logstash
+    - nginx
+
+- name: diable SElinux
+  shell: setenforce 0 ; sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config

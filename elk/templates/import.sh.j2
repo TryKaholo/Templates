@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#Create dir
+mkdir -p ${HOME}/manual_data/csv
+mkdir -p ${HOME}/manual_data/json
+
+#Download data
+echo "Download CSV data"
+gsutil cp gs://{{instance_name}}-es-on-demand/manual_data/*.csv ${HOME}/manual_data/csv
+echo "Download json data"
+gsutil cp gs://{{instance_name}}-es-on-demand/manual_data/*.json ${HOME}/manual_data/json
+
+#Clean CSVs
+echo "Clean CSV data"
+cd ${HOME}/manual_data/csv
+rm -f *_out.*
+for file in $(ls);
+do
+  /root/.local/bin/csvclean $file
+done
+
+# import csv data
+echo "Import CSV data"
+cd ${HOME}/manual_data/csv
+for file in $(ls *out*);
+do
+  python3 /usr/local/bin/dump.py $file
+done
+
+# import json data
+echo "Import JSON data"
+cd ${HOME}/manual_data/json
+for file in $(ls);
+do
+  python3 /usr/local/bin/dump.py $file
+done
+
+#Cleanup
+cd
+rm -rf ${HOME}/manual_data
