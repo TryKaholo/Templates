@@ -1,6 +1,6 @@
 ---
 - name: Copy service credentials
-  ansible.builtin.copy:
+  copy:
     src: /home/inder/Downloads/on-demand-elk-5cf1db7974ac.json
     dest: /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
 
@@ -19,7 +19,7 @@
   shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-gcs"
 
 - name: Restart elasticsearch service
-  ansible.builtin.service:
+  service:
     name: elasticsearch
     state: restarted
 
@@ -59,18 +59,18 @@
     - latest_bkp.stdout != "id"
 
 - name: Enable ES auth
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
     line: "xpack.security.enabled: true"
     state: present
 
 - name: Restart elasticsearch service
-  ansible.builtin.service:
+  service:
     name: elasticsearch
     state: restarted
 
 - name: Set credentials for ES
-  ansible.builtin.expect:
+  expect:
     command: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
     responses:
       'Please confirm that you would like to continue \[y/N\]': "y"
@@ -88,7 +88,7 @@
       'Reenter password for \[remote_monitoring_user\]': "{{ remote_monitoring_password }}"
 
 - name: Update kibana config
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: /etc/kibana/kibana.yml
     line: "{{ item }}"
     state: present
@@ -97,7 +97,7 @@
     - 'elasticsearch.password: "{{ kibana_password }}"'
 
 - name: Restart kibana service
-  ansible.builtin.service:
+  service:
     name: kibana
     state: restarted
 
