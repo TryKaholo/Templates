@@ -1,0 +1,15 @@
+## Update these values as needed
+instance:
+  vars:
+    ##Path should be changed as per file location
+    service_account_file: <service-account-file-path>
+    project: on-demand-elk
+    auth_kind: serviceaccount
+    region: us-central1
+    zone: us-central1-a
+    source_image: projects/centos-cloud/global/images/centos-7-v20211105
+    machine_type: n2-standard-2
+    scopes:
+      - https://www.googleapis.com/auth/compute
+  hosts:
+    localhost:

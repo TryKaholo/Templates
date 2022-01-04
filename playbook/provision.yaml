@@ -1,0 +1,112 @@
+---
+- name: Provision ELK Instance
+  hosts: instance
+  gather_facts: no
+  connection: local
+  tasks:
+    - name: create a bucket
+      google.cloud.gcp_storage_bucket:
+        name: "{{ instance_name }}-es-on-demand"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        state: present
+
+    - name: create a disk
+      google.cloud.gcp_compute_disk:
+        name: "disk-instance-{{ instance_name }}"
+        size_gb: 50
+        source_image: "{{source_image}}"
+        zone: "{{zone}}"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        state: present
+      register: disk_elastic
+    
+    - name: create a network
+      google.cloud.gcp_compute_network:
+        name: "network-instance-{{ instance_name }}"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        auto_create_subnetworks: 'true'
+        service_account_file: "{{service_account_file}}"
+        state: present
+      register: network_elastic
+   
+    - name: create a NAT address
+      google.cloud.gcp_compute_address:
+        name: "address-instance-{{ instance_name }}-ext"
+        region: "{{region}}"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        state: present
+      register: address_ext
+
+    - name: create an internal address
+      google.cloud.gcp_compute_address:
+        name: "address-instance-{{ instance_name }}-int"
+        address_type: INTERNAL
+        region: "{{region}}"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        state: present
+      register: address_int
+    
+    - name: create an instance
+      google.cloud.gcp_compute_instance:
+        name: "{{ instance_name }}"
+        machine_type: "{{machine_type}}" 
+        disks:
+        - auto_delete: 'true'
+          boot: 'true'
+          source: "{{ disk_elastic }}"
+        metadata:
+          startup-script-url: gs:://graphite-playground/bootstrap.sh
+          shutdown-script: "curl -X PUT \"localhost:9200/_snapshot/backup/snapshot_$(date +%s)?wait_for_completion=true\" -H 'Content-Type: application/json' -d '{\"indices\": \"*,-.geoip_databases,-.kibana_task_manager*,-.kibana-*,-.apm-*,-.ds-*,-.tasks,-.async-search\",\"ignore_unavailable\": true,\"include_global_state\": false}'"
+          cost-center: '12345'
+        labels:
+          environment: "{{ instance_name }}"
+        network_interfaces:
+        - network: "{{ network_elastic }}"
+          access_configs:
+            - name: external
+              nat_ip: "{{ address_ext }}"
+              type: ONE_TO_ONE_NAT
+          network_ip: "{{ address_int.address }}"
+        zone: "{{zone}}"
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        scopes:
+           - https://www.googleapis.com/auth/compute
+        state: present
+      tags: instance
+     
+    - name: create a firewall
+      google.cloud.gcp_compute_firewall:
+        name: "{{ instance_name }}-rule"
+        direction: "INGRESS"
+        network: 
+          selfLink: "https://www.googleapis.com/compute/v1/projects/on-demand-elk/global/networks/network-instance-{{ instance_name }}"
+        allowed:
+        - ip_protocol: tcp
+          ports:
+          - '22'
+          - '80'
+          - '443'
+          - '9200'
+          - '5601'
+        source_ranges: '0.0.0.0/0'
+        project: "{{project}}"
+        auth_kind: "{{auth_kind}}"
+        service_account_file: "{{service_account_file}}"
+        state: present
+
+    - name: Wait for SSH to come up
+      wait_for: host={{ address_ext.address }} port=22 delay=10 timeout=60
+
+    - name: Setup SSH keys
+      shell: "gcloud beta compute ssh --zone \"{{zone}}\" \"{{ instance_name }}\"  --project \"{{project}}\""
