@@ -36,7 +36,7 @@
     mode: 777
 
 - name: Create a backup repository
-  shell: "sleep 20 ; curl -X PUT -H \"Content-Type: application/json\" -d '{ \"type\": \"gcs\", \"settings\": {\"bucket\": \"{{instance_name}}-es-on-demand\", \"base_path\": \"es_backup\" } }' localhost:9200/_snapshot/backup"
+  shell: "sleep 20 ; curl -X PUT -H \"Content-Type: application/json\" -d '{ \"type\": \"gcs\", \"settings\": {\"bucket\": \"{{instance_name}}-{{project}}\", \"base_path\": \"es_backup\" } }' localhost:9200/_snapshot/backup"
 
 - name: Check if any latest backup is available
   shell: curl -s  'localhost:9200/_cat/snapshots/backup?v&s=end_epoch' | tail -1 | cut -d ' ' -f1
