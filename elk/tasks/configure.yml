@@ -1,7 +1,7 @@
 ---
 - name: Copy service credentials
   copy:
-    src: /home/inder/Downloads/on-demand-elk-5cf1db7974ac.json
+    src: /root/.config.json
     dest: /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
 
 - name: Activate the auth

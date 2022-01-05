@@ -1,8 +1,7 @@
 ---
 # defaults file for elk
-## Update these values as needed
-instance_name: elk-kaholo
 ansible_ssh_private_key_file: ~/.ssh/google_compute_engine
+# Values will be picked from Kaholo
 elastic_password: <password>
 apm_password: <password>
 kibana_password: <password>
