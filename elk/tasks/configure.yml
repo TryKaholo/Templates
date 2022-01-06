@@ -2,13 +2,13 @@
 - name: Copy service credentials
   copy:
     src: /root/.config.json
-    dest: /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+    dest: /usr/share/elasticsearch/bin/on-demand-elk.json
 
 - name: Activate the auth
-  shell: gcloud auth activate-service-account --key-file=/usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+  shell: gcloud auth activate-service-account --key-file=/usr/share/elasticsearch/bin/on-demand-elk.json
 
 - name: Add credentials to ElasticSearch KeyStore
-  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json"
+  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /usr/share/elasticsearch/bin/on-demand-elk.json"
 
 - name: Remove GCS backup plugin directory
   file:

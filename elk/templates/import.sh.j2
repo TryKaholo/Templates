@@ -6,9 +6,9 @@ mkdir -p ${HOME}/manual_data/json
 
 #Download data
 echo "Download CSV data"
-gsutil cp gs://{{instance_name}}-es-on-demand/manual_data/*.csv ${HOME}/manual_data/csv
+gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.csv ${HOME}/manual_data/csv
 echo "Download json data"
-gsutil cp gs://{{instance_name}}-es-on-demand/manual_data/*.json ${HOME}/manual_data/json
+gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.json ${HOME}/manual_data/json
 
 #Clean CSVs
 echo "Clean CSV data"
