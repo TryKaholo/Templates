@@ -127,17 +127,17 @@
     state: restarted
   tags: [ restart-logstash ]
 
-- name: Pause the play for sometime
-  pause:
-    seconds: 30
-  tags: [ pause ]
-  
 - name: Copy dump script
   copy:
     src: dump.py
     dest: /usr/local/bin/dump.py
   tags: [ copy-dump ]
 
+- name: Pause the play for sometime
+  pause:
+    seconds: 60
+  tags: [ pause ]
+  
 - name: Import manual data
   shell: /usr/local/bin/import
 
