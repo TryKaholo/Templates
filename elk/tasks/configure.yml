@@ -135,11 +135,10 @@
 
 - name: Pause the play for sometime
   pause:
-    seconds: 60
+    seconds: 30
   tags: [ pause ]
-  
-- name: Import manual data
-  shell: /usr/local/bin/import
+ 
+#NOTE: Running this step in Kaholo due to some issue 
+#- name: Import manual data
+#  shell: /usr/local/bin/import
 
-- debug:
-    msg: "Login into Kibana UI using 'user: elastic' and 'password: {{ elastic_password }}"
