@@ -16,6 +16,7 @@ cd ${HOME}/manual_data/csv
 rm -f *_out.*
 for file in $(ls);
 do
+  echo "Cleaning $file file..."
   /root/.local/bin/csvclean $file
 done
 
@@ -24,6 +25,7 @@ echo "Import CSV data"
 cd ${HOME}/manual_data/csv
 for file in $(ls *out*);
 do
+  echo "Importing $file file data..."
   python3 /usr/local/bin/dump.py $file
 done
 
@@ -32,6 +34,7 @@ echo "Import JSON data"
 cd ${HOME}/manual_data/json
 for file in $(ls);
 do
+  echo "Importing $file file data..."
   python3 /usr/local/bin/dump.py $file
 done
 
