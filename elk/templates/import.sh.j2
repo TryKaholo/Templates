@@ -1,40 +1,53 @@
 #!/bin/bash
 
+# Set debugging
+COLOR_OFF="\033[0;m"
+BOLD_GREEN="\033[32;1m"
+BOLD_BLUE="\033[34;1m"
+
+echo_info() {
+  echo -e "${BOLD_GREEN}[ INFO ] ---> ${*}${COLOR_OFF}"
+}
+
+echo_debug() {
+  echo -e "${BOLD_BLUE}[ DEBUG ] ---> ${*}${COLOR_OFF}"
+}
+
 #Create dir
 mkdir -p ${HOME}/manual_data/csv
 mkdir -p ${HOME}/manual_data/json
 
 #Download data
-echo "Download CSV data"
+echo_info "Download CSV data"
 gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.csv ${HOME}/manual_data/csv
-echo "Download json data"
+echo_info "Download json data"
 gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.json ${HOME}/manual_data/json
 
 #Clean CSVs
-echo "Clean CSV data"
+echo_info "Clean CSV data"
 cd ${HOME}/manual_data/csv
 rm -f *_out.*
 for file in $(ls);
 do
-  echo "Cleaning $file file..."
+  echo_debug "Cleaning $file file..."
   /root/.local/bin/csvclean $file
 done
 
 # import csv data
-echo "Import CSV data"
+echo_info "Import CSV data"
 cd ${HOME}/manual_data/csv
 for file in $(ls *out*);
 do
-  echo "Importing $file file data..."
+  echo_debug "Importing $file file data..."
   python3 /usr/local/bin/dump.py $file
 done
 
 # import json data
-echo "Import JSON data"
+echo_info "Import JSON data"
 cd ${HOME}/manual_data/json
 for file in $(ls);
 do
-  echo "Importing $file file data..."
+  echo_debug "Importing $file file data..."
   python3 /usr/local/bin/dump.py $file
 done
 
