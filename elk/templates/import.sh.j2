@@ -9,8 +9,8 @@ echo_info() {
   echo -e "${BOLD_GREEN}[ INFO ] ---> ${*}${COLOR_OFF}"
 }
 
-echo_debug() {
-  echo -e "${BOLD_YELLOW}[ DEBUG ] ---> ${*}${COLOR_OFF}"
+echo_action() {
+  echo -e "${BOLD_YELLOW}[ ACTION ] ---> ${*}${COLOR_OFF}"
 }
 
 #Create dir
@@ -34,7 +34,7 @@ then
 else
   for file in $(ls);
   do
-    echo_debug "Cleaning $file file..."
+    echo_action "Cleaning $file file..."
     /root/.local/bin/csvclean $file
   done
 fi
@@ -50,7 +50,7 @@ then
 else
   for file in $(ls *out*);
   do
-    echo_debug "Importing $file file data..."
+    echo_action "Importing $file file data..."
     python3 /usr/local/bin/dump.py $file
   done
 fi
@@ -66,7 +66,7 @@ then
 else
   for file in $(ls);
   do
-    echo_debug "Importing $file file data..."
+    echo_action "Importing $file file data..."
     python3 /usr/local/bin/dump.py $file
   done
 fi
