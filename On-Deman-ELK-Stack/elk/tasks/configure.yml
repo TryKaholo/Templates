@@ -58,6 +58,21 @@
     - latest_bkp.stdout != ""
     - latest_bkp.stdout != "id"
 
+- name: Check ES cluster health
+  shell: "curl -s localhost:9200/_cat/health | cut -d ' ' -f4"
+  register: es_health
+  tags: [ es-health ]
+
+-  name: End play with a message to the user
+   debug:
+     msg: "ES cluster health is RED, It can be due to resource constraints on the server. Ending the play..."
+   when: "es_health.stdout == red"
+   tags: [ end-play-msg ]
+
+-  meta: end_play
+   when: "es_health.stdout == red"
+   tags: [ end-play ]
+
 - name: Enable ES auth
   lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
