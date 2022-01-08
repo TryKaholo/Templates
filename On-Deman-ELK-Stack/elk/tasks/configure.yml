@@ -66,11 +66,11 @@
 -  name: End play with a message to the user
    debug:
      msg: "ES cluster health is RED, It can be due to resource constraints on the server. Ending the play..."
-   when: "es_health.stdout == red"
+   when: "es_health.stdout == 'red'"
    tags: [ end-play-msg ]
 
 -  meta: end_play
-   when: "es_health.stdout == red"
+   when: "es_health.stdout == 'red'"
    tags: [ end-play ]
 
 - name: Enable ES auth
