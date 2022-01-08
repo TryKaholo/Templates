@@ -71,6 +71,8 @@
 
 -  meta: end_play
    when: "es_health.stdout == 'red'"
+   register: result
+   failed_when: result.rc == 0
    tags: [ end-play ]
 
 - name: Enable ES auth
