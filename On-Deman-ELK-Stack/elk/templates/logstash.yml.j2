@@ -25,6 +25,6 @@ input {
                     ssl => false
                     password => "{{elastic_password}}"
                     index => "logstash"
-                    document_id  => "%{{{logstash_dup_handler}}}"
+                    document_id  => "{{logstash_dup_handler}}"
             }
     }
