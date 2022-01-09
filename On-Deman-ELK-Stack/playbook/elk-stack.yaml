@@ -3,6 +3,7 @@
   ##elk is the group in Ansible inventory containing the IP of the VM
   hosts: all
   gather_facts: no
+  remote_user: elkuser
   become: true
   roles: 
     - {role: ../elk}

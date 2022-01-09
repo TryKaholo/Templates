@@ -1,14 +1,14 @@
 ---
 - name: Copy service credentials
-  ansible.builtin.copy:
-    src: /home/inder/Downloads/on-demand-elk-5cf1db7974ac.json
-    dest: /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+  copy:
+    src: /root/.config.json
+    dest: /usr/share/elasticsearch/bin/on-demand-elk.json
 
 - name: Activate the auth
-  shell: gcloud auth activate-service-account --key-file=/usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json
+  shell: gcloud auth activate-service-account --key-file=/usr/share/elasticsearch/bin/on-demand-elk.json
 
 - name: Add credentials to ElasticSearch KeyStore
-  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /usr/share/elasticsearch/bin/on-demand-elk-5cf1db7974ac.json"
+  shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-keystore add-file gcs.client.default.credentials_file /usr/share/elasticsearch/bin/on-demand-elk.json"
 
 - name: Remove GCS backup plugin directory
   file:
@@ -19,7 +19,7 @@
   shell: "echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-plugin install repository-gcs"
 
 - name: Restart elasticsearch service
-  ansible.builtin.service:
+  service:
     name: elasticsearch
     state: restarted
 
@@ -36,7 +36,7 @@
     mode: 777
 
 - name: Create a backup repository
-  shell: "sleep 20 ; curl -X PUT -H \"Content-Type: application/json\" -d '{ \"type\": \"gcs\", \"settings\": {\"bucket\": \"{{instance_name}}-es-on-demand\", \"base_path\": \"es_backup\" } }' localhost:9200/_snapshot/backup"
+  shell: "sleep 20 ; curl -X PUT -H \"Content-Type: application/json\" -d '{ \"type\": \"gcs\", \"settings\": {\"bucket\": \"{{instance_name}}-{{project}}\", \"base_path\": \"es_backup\" } }' localhost:9200/_snapshot/backup"
 
 - name: Check if any latest backup is available
   shell: curl -s  'localhost:9200/_cat/snapshots/backup?v&s=end_epoch' | tail -1 | cut -d ' ' -f1
@@ -58,19 +58,36 @@
     - latest_bkp.stdout != ""
     - latest_bkp.stdout != "id"
 
+- name: Check ES cluster health
+  shell: "curl -s localhost:9200/_cat/health | cut -d ' ' -f4"
+  register: es_health
+  tags: [ es-health ]
+
+-  name: End play with a message to the user
+   debug:
+     msg: "ES cluster health is RED, It can be due to resource constraints on the server. Ending the play..."
+   when: "es_health.stdout == 'red'"
+   tags: [ end-play-msg ]
+
+-  meta: end_play
+   when: "es_health.stdout == 'red'"
+   register: result
+   failed_when: result.rc == 0
+   tags: [ end-play ]
+
 - name: Enable ES auth
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: /etc/elasticsearch/elasticsearch.yml
     line: "xpack.security.enabled: true"
     state: present
 
 - name: Restart elasticsearch service
-  ansible.builtin.service:
+  service:
     name: elasticsearch
     state: restarted
 
 - name: Set credentials for ES
-  ansible.builtin.expect:
+  expect:
     command: /usr/share/elasticsearch/bin/elasticsearch-setup-passwords interactive
     responses:
       'Please confirm that you would like to continue \[y/N\]': "y"
@@ -88,7 +105,7 @@
       'Reenter password for \[remote_monitoring_user\]': "{{ remote_monitoring_password }}"
 
 - name: Update kibana config
-  ansible.builtin.lineinfile:
+  lineinfile:
     path: /etc/kibana/kibana.yml
     line: "{{ item }}"
     state: present
@@ -97,7 +114,7 @@
     - 'elasticsearch.password: "{{ kibana_password }}"'
 
 - name: Restart kibana service
-  ansible.builtin.service:
+  service:
     name: kibana
     state: restarted
 
@@ -127,19 +144,18 @@
     state: restarted
   tags: [ restart-logstash ]
 
-- name: Pause the play for sometime
-  pause:
-    seconds: 30
-  tags: [ pause ]
-  
 - name: Copy dump script
   copy:
     src: dump.py
     dest: /usr/local/bin/dump.py
   tags: [ copy-dump ]
 
-- name: Import manual data
-  shell: /usr/local/bin/import
+- name: Pause the play for sometime
+  pause:
+    seconds: 30
+  tags: [ pause ]
+ 
+#NOTE: Running this step in Kaholo due to some issue 
+#- name: Import manual data
+#  shell: /usr/local/bin/import
 
-- debug:
-    msg: "Login into Kibana UI using 'user: elastic' and 'password: {{ elastic_password }}"

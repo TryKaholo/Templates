@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# Set debugging
+COLOR_OFF="\033[0;m"
+BOLD_GREEN="\033[32;1m"
+BOLD_YELLOW="\033[1;33;1m"
+
+echo_info() {
+  echo -e "${BOLD_GREEN}[ INFO ] ---> ${*}${COLOR_OFF}"
+}
+
+echo_action() {
+  echo -e "${BOLD_YELLOW}[ ACTION ] ---> ${*}${COLOR_OFF}"
+}
+
+#Create dir
+mkdir -p ${HOME}/manual_data/csv
+mkdir -p ${HOME}/manual_data/json
+
+#Download data
+echo_info "Download CSV data"
+gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.csv ${HOME}/manual_data/csv
+echo_info "Download json data"
+gsutil cp gs://{{instance_name}}-{{project}}/manual_data/*.json ${HOME}/manual_data/json
+
+#Clean CSVs
+echo_info "Clean CSV data"
+cd ${HOME}/manual_data/csv
+rm -f *_out.*
+data=`ls`
+if [ -z "$data" ]
+then
+  echo_info "There is no CSV data to clean..."
+else
+  for file in $(ls);
+  do
+    echo_action "Cleaning $file file..."
+    /root/.local/bin/csvclean $file
+  done
+fi
+
+
+# import csv data
+echo_info "Import CSV data"
+cd ${HOME}/manual_data/csv
+data=`ls`
+if [ -z "$data" ]
+then
+  echo_info "There is no CSV data to import..."
+else
+  for file in $(ls *out*);
+  do
+    echo_action "Importing $file file data..."
+    python3 /usr/local/bin/dump.py $file
+  done
+fi
+
+
+# import json data
+echo_info "Import JSON data"
+cd ${HOME}/manual_data/json
+data=`ls`
+if [ -z "$data" ]
+then
+  echo_info "There is no JSON data to import..."
+else
+  for file in $(ls);
+  do
+    echo_action "Importing $file file data..."
+    python3 /usr/local/bin/dump.py $file
+  done
+fi
+
+#Cleanup
+echo_info "Do some cleanup..."
+cd
+rm -rf ${HOME}/manual_data
