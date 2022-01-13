@@ -67,34 +67,39 @@
   shell: "gcloud compute instances set-machine-type {{instance_name}} --machine-type {{machine_type_upgrade}}"
   when: "es_health.stdout == 'red'"
   register: upgrade_cluster
-  tags: [ es-health ]
+  tags: [ es-health-upgrade ]
 
 - name: start all services 
   service:
     name: "{{ item }}"
-    state: restarted
+    state: started
     enabled: yes
   when: "es_health.stdout == 'red'"  
   with_items:
     - elasticsearch
     - kibana
     - logstash
-    - nginx   
+    - nginx
+  tags: [start-services]  
 
 - name: Check ES cluster health again
   shell: "curl -s localhost:9200/_cat/health | cut -d ' ' -f4"
   when: "es_health.stdout == 'red'"
   register: es_health_again
-  tags: [ es-health ]
+  tags: [ es-health-again ]
 
 -  name: End play with a message to the user
    debug:
      msg: "ES cluster health is RED, It can be due to resource constraints on the server. Ending the play..."
-   when: "es_health_again.stdout == 'red'"
+   when:
+     - es_health_again is define
+     - es_health_again.stdout == 'red'
    tags: [ end-play-msg ]
 
 -  meta: end_play
-   when: "es_health_again.stdout == 'red'"
+   when:
+     - es_health_again is define
+     - es_health_again.stdout == 'red'
    register: result
    failed_when: result.rc == 0
    tags: [ end-play ]
