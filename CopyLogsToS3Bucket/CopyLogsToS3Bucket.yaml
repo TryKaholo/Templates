@@ -1,6 +1,6 @@
 ---
 - name: copy script to instance
-  hosts: 127.0.0.1
+  hosts: all
   remote_user: ubuntu
   become: yes
   vars:
