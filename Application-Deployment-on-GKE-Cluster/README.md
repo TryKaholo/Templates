@@ -8,7 +8,7 @@ This locations is for GCP templates, the ones that you can use for gcp environme
 
 ## Application Deployment on GKE Cluster
 
-This template is for deploying a demo application to a kaholo.io account. We're asssuming your app is containerized and has Dockerfile in your repo and k8s deployment yaml file.
+This template is for deploying a containerized application on GKE cluster using Kaholo.io platform. The pipeline will create a cluster, build the application image, publish the image and than deploy the container on the cluster.
 
 ![app-demo-deploy-gke](../images/app-demo-deploy-gke.png)
 
