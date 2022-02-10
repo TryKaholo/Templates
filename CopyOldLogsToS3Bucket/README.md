@@ -15,11 +15,11 @@ The pipeline allows you to move all your old logs to s3 Bucket.
 
 ### Configuration variables
 
-* **workDir**: The environment where the app will be deployed.
-* **pathLog**: The directory where the agent will work to deploy your app.
-* **bucket**: The repository source.
-* **user**: The branch where the code is located.
-* **host**: The file path with extension of the k8s deployment yaml file.
+* **workDir**: 
+* **pathLog**: 
+* **bucket**: 
+* **user**: 
+* **host**: 
 * **pem**:
     
 Example:
@@ -29,7 +29,7 @@ Example:
         "pathLog": "/var/logs",
         "bucket": "kaholo-test",
         "user": "ubuntu",
-        "host": "10.0.0.0"
+        "host": "0.0.0.0"
     }
 ```
 
