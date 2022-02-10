@@ -35,9 +35,7 @@ Example configuration:
 
 
 The private key is entered in the file content.
-![image](https://user-images.githubusercontent.com/6090240/153495855-53c9f18c-8202-4825-a1f4-f95da4c35d2b.png)
-![image](https://user-images.githubusercontent.com/6090240/153495574-cf8211a6-df1b-40a9-99ad-e86f924a4401.png)
-![image](https://user-images.githubusercontent.com/6090240/153493809-c970a751-faff-4495-984e-a9f52727f03f.png)
+![image](https://user-images.githubusercontent.com/6090240/153496051-284a730b-3dea-4bde-af1e-150bcb30bd56.png)
 
 ### Requirements:
 AWS CLI (The AWS CLI should already be configured).
