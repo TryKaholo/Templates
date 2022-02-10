@@ -15,14 +15,14 @@ The pipeline allows you to move all your old logs to s3 Bucket.
 
 ### Configuration variables
 
-* **workDir**: 
-* **pathLog**: 
-* **bucket**: 
-* **user**: 
-* **host**: 
-* **pem**:
+* **workDir**: Directory where the private key and the script are saved.
+* **pathLog**: Directory where the logs are located.
+* **bucket**: Name of the S3 Bucket where the old logs will be uploaded.
+* **user**: Server user.
+* **host**: Server IP.
+* **pem**: Private key.
     
-Example:
+Example configuration:
 ```javascript
     {
         "workDir":"/work",
@@ -33,6 +33,10 @@ Example:
     }
 ```
 
+
+The private key is entered in the file content.
+
+![image](https://user-images.githubusercontent.com/6090240/153495574-cf8211a6-df1b-40a9-99ad-e86f924a4401.png)
 ![image](https://user-images.githubusercontent.com/6090240/153493809-c970a751-faff-4495-984e-a9f52727f03f.png)
 
 ### Requirements:
