@@ -1,8 +1,8 @@
 # Copy Old Logs to S3 Bucket
 
-The pipeline allows you to move all your old logs to s3 Bucket.
+The pipeline allows you to move all your old logs to S3 Bucket.
 
-## In this pipeline is divided into 6 phases:
+## The pipeline is divided into 6 phases:
 
     1.- A working directory is created.
     2.- The pem key is entered (private key).
