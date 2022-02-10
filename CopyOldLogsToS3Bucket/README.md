@@ -4,12 +4,12 @@ The pipeline allows you to move all your old logs to S3 Bucket.
 
 ## The pipeline is divided into 6 phases:
 
-1.-  **workDir**: A working directory is created.
-2.-  **pemFile**: The pem key is entered (private key).
-3.-  **Permission**: The correct permissions are given to the key.
-4.-  **CopyOldLogsToS3Bcuket.sh**: The script is created and saved in the working directory.
-5.-  **Setup Script**: We send the script to the server where the logs will be moved.
-6.-  **Execution**: The server connection is made and the script is executed.
+* **workDir**: A working directory is created.
+* **pemFile**: The pem key is entered (private key).
+* **Permission**: The correct permissions are given to the key.
+* **CopyOldLogsToS3Bcuket.sh**: The script is created and saved in the working directory.
+* **Setup Script**: We send the script to the server where the logs will be moved.
+* **Execution**: The server connection is made and the script is executed.
 
 ![image](https://user-images.githubusercontent.com/6090240/153493323-6cdfc2eb-de9b-459e-bea0-73bd1a987388.png)
 
