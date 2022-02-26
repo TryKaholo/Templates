@@ -63,6 +63,7 @@ This is the region name where ELK stack will be setup. You `will have to change`
 The zone to use on the GCP. e.g `us-central1-a`. You `will have to change` its value as per your setup.
 ###### source_image: 
 This is the URL of the image we will use to create the virtual machine. The preffered image is `projects/centos-cloud/global/images/centos-7-v20211105` 
+
 Please `avoid changing its value` as it may break some pipeline steps.
 ###### machine_type:
 This is the virtual machine type we will use to create the virtual machine. The preffered one is `n2-standard-4`. You `can change its value` as needed but make sure you are allocating enough resources to the stack.
@@ -72,17 +73,23 @@ This is the disk space we will allocate to the virtual machine, the default valu
 The subnet group range, the default value is `10.` but you `can change it` as per your setup.
 ###### git_repo_url:
 The Ansible playbooks and Kaholo template repository URL. The value must be `https://github.com/TryKaholo/Templates.git`
+
+
 `Do not change` its value.
 ###### git_branch:
 The branch to use from the repository, its value should be `main`. Please `avoid changing its value`, as `main` branch will always have latest stable code.
 ###### git_clone_path:
 This is the local path on the Kaholo agent where git repository will be cloned. Its value must be `/root/elk`
+
+
 Please `avoid changing its value` as you will need to modify the pipeline accodingly.
 ###### playbook_path:
 This is the Ansible playbook path pipeline will run. Its value must be `playbook/elk-stack.yaml`
 Please `avoid changing its value` as you will need to modify the pipeline accodingly, also note that its value depends upon the `git_clone_path` variable value because if you change the repository clone location then you might need to modify the playbook path accordingly.
 ###### gcp_config_file:
 This is the Google cloud service account config file which is needed by the Kaholo agent to authenticate with GCP. The value must be `/root/.config.json`
+
+
 Please `avoid changing its value` as you will need to modify the pipeline accodingly.
 ######  gcp_base64_config: 
 This is the base64 encoded content of the service account json file. You can generate the same using below given command:
@@ -91,6 +98,8 @@ cat <your-service-account-json-file> | base64
 ```
 or using some online platform like:
 https://www.base64encode.org/
+
+
 You `will have to set` its value as per your config.
 ######  elastic_password:
 This is the password of the elastic search, the default value is `ybaPkSpTTGGTtt7mUqRB` but it is `highly recommended to change it`.
@@ -120,6 +129,8 @@ This is the region name where ELK stack is running. Its `value must match` with 
 The zone under which ELK stack is running. Its `value must match` with the value you have in the `Create` configuration for this variable.
 ###### gcp_config_file:
 This is the Google cloud service account config file which is needed by the Kaholo agent to authenticate with GCP. The value must be `/root/.config.json`
+
+
 Its `value must match` with the value you have in the `Create` configuration for this variable.
 ######  gcp_base64_config: 
 This is the base64 encoded content of the service account json file. You can generate the same using below given command:
@@ -128,6 +139,8 @@ cat <your-service-account-json-file> | base64
 ```
 or using some online platform like:
 https://www.base64encode.org/
+
+
 Its `value must match` with the value you have in the `Create` configuration for this variable.
 ######  elastic_password:
 This is the password of the elastic search, the default value is `ybaPkSpTTGGTtt7mUqRB`. It will be used in the delete pipeline to make sure we take a final snapshot of the stack before deleting it. Its `value must match` with the value you have in the `Create` configuration for this variable.
