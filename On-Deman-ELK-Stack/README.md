@@ -74,7 +74,7 @@ The subnet group range, the default value is `10.` but you `can change it` as pe
 The Ansible playbooks and Kaholo template repository URL. The value must be `https://github.com/TryKaholo/Templates.git`
 `Do not change` its value.
 ###### git_branch:
-The branch to use from the repository, its value should be `master`. Please `avoid changing its value` as `master` branch will always have latest stable code.
+The branch to use from the repository, its value should be `main`. Please `avoid changing its value`, as `main` branch will always have latest stable code.
 ###### git_clone_path:
 This is the local path on the Kaholo agent where git repository will be cloned. Its value must be `/root/elk`
 Please `avoid changing its value` as you will need to modify the pipeline accodingly.
