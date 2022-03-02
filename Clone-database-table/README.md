@@ -1,4 +1,4 @@
-# Clone Database Table
+# Clone Database Tables
 
 Thie Template is use for Clone database tables in same database.
 
