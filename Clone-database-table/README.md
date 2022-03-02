@@ -1,13 +1,14 @@
-# CloneTable
+# CloneDatabaseTable
 
-Thie Template is use for Clone table in same database.
+Thie Template is use for Clone database tables in same database.
 
 
 
-## Application Deployment on GKE Cluster
+## Cloning Database Tables
 
-This template is help to clone the Tables in the same database. Template is customizable for MySQL and MSSQL database, This template first check connection and then check tables if it exist then it will create replica of table in the same database.
-(../images/clone-table-pipeline.png)
+This template is help to clone the Database Tables in the same database. Template is customizable for MySQL and MSSQL database, This template first check connection and then check tables if it exist then it will create replica of table in the same database.
+
+![clone-table-pipeline](../images/clone-table-pipeline.png)
 
 
 
