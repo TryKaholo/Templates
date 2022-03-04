@@ -38,3 +38,13 @@ This pipeline template makes use of the [Command Line](https://github.com/Kaholo
 
 - **aws_access_key_id**: The Access Key Id of the AWS user.
 - **aws_secret_access_key**: The Secret Access Key of the AWS user.
+
+### Setting up Grafana with Prometheus
+
+The [Prometheus and Grafana stack](https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack) has already been deployed to the cluster. Prometheus is already collecting the default cluster metrics.
+
+To configure Grafana to connect to Prometheus, do the following -
+1. Login using the default credentials - `admin/[password](https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml#L661)`
+2. Add a data source and select prometheus.
+3. Run `kubectl get svc -n default` to get a list of services. By default the Prometheus service will be named `prometheus-stack-kube-prom-prometheus`.
+4. Add the prometheus address as `http://prometheus-stack-kube-prom-prometheus:9090/....`. Now grafana should be able to connect to Prometheus and show all the metrics being collected.
