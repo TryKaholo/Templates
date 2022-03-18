@@ -29,10 +29,6 @@ This template can be used to create AWS Certificate Manager(ACM). This template 
 1. CommandLine
 2. Terraform-CLI
 
-## Terraform Module
-  The terraform module to create the AWS ACM is available in this [GitHub Repository](https://github.com/Yukesh4791/kaholo_templates/tree/feat/acm/terraform/acm).
-
-
 ## Author
 * Yukesh H (https://github.com/Yukesh4791)
 
