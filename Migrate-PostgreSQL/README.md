@@ -1,4 +1,4 @@
-# Quarantine EC2 Instance by Security Trigger
+# Migrate PostgreSQL Database
 
 Migrate PostgreSQL Database template was designed to make migrating from Heroku to PostgreSQL or RDS (and vice versa) as easy as possible. For it to work, you just need to fill in the fields in the configuration.
 
